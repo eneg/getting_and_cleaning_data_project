@@ -20,12 +20,15 @@
 #  create_merged: generic function for appending files together given a target 
 #                 directory and a rule tables with following structure :
 #                 src1, src2, dest
-
+#
+#
+## run_analysis() main function for extracting things from "UCI HAR Dataset"
 run_analysis <- function(){
 
-    message("################################")
-    message("##  1 - appends files two by two")
-
+    ##  1 - appends files two by two
+    message("********************************")
+    message("**  1 - appends files two by two")
+    
     # set directories
     dest_dir = "UCI_HAR_Merged"
     src_dir_1 = "UCI HAR Dataset/test"
@@ -65,13 +68,15 @@ run_analysis <- function(){
     # In dest_dir, appends the files as specified in mergeTable
     # use create merged function bellow 
     create_merged(dest_dir, mergeTable)
-    message("####### created merged files")
-    message("####### end of the first part of assignment\n\n")
+    message("**** created merged files")
+    message("**** end of the first part of assignment\n\n")
 
-    message("####################################################")
-    message("##  tidy human-readable data file containing std and")
-    message("##  mean-related columns")
-
+    ##  2 - tidy human-readable data file containing std and
+    ##      mean-related columns
+    message("****************************************************")
+    message("**  tidy human-readable data file containing std and")
+    message("**  mean-related columns")
+    
     # load tables for tidied files extraction 
     message("loading merged files")
     features <- read.table("./UCI HAR Dataset/features.txt")
@@ -83,7 +88,6 @@ run_analysis <- function(){
     
     # assign column headers
     names(y)<-"act_id"
-    #    names(X)<-gsub("__","",chartr("(),-", "_____",features[, 2]))
     names(X)<-features[, 2]
     names(subject)<-"subject"
     names(activities)<-c("act_id","activity")
@@ -100,22 +104,24 @@ run_analysis <- function(){
     
     # get a list of "mean/std"-related columns index in the X table
     message("getting std or mean-related columns indexes")
-    fields<-as.matrix(features[
+    selected_fields<-as.matrix(features[
         grep("std|mean", features[,2],ignore.case=TRUE),1])
     
     # assemble tables "horizontally"
     message("binding components")
-    result<-cbind(subject,HR_y,X[,fields[,1]])
+    tidy_mean_std<-cbind(subject,HR_y,X[,selected_fields[,1]])
 
     # write the result as tidy_mean_std.txt
     message("writing file tidy_mean_std.txt")
-    write.table(result, "tidy_mean_std.txt", sep="\t", row.names = FALSE)
-    message("####### written tidy_mean_std.txt")
-    message("####### end of the second part of assignment\n\n")
+    write.table(tidy_mean_std, "tidy_mean_std.txt", sep="\t", row.names = FALSE)
+    message("**** written tidy_mean_std.txt")
+    message("**** end of the second part of assignment\n\n")
     
-    message("##################################################")
-    message("##  second tidy data file with the average of each") 
-    message("##  variable for each activity and each subject")
+    ##  3 - make second tidy data file with the average of each
+    ##      variable for each activity and each subject
+    message("**************************************************")
+    message("**  second tidy data file with the average of each") 
+    message("**  variable for each activity and each subject")
     fullTable<-cbind(subject,HR_y,X)
     message("done generating 'base fullTable'")
     aveTable<-as.data.frame(matrix(NA,ncol=563, nrow=180))    
@@ -138,11 +144,13 @@ run_analysis <- function(){
     }
     colnames(aveTable)<-c("subject", "activity",c(colnames(X)))
     write.table(aveTable, "tidy_averages.txt", sep="\t", row.names = FALSE)
-    message("####### written tidy_averages.txt,")
-    message("####### end of the third and last part of assignment")
+    message("**** written tidy_averages.txt,")
+    message("**** end of the third and last part of assignment")
 }
-
-## Appends files 2 by 2 in new files as specified in a table passed as argument
+#
+#
+## create_merged() Appends files 2 by 2 in new files as specified in a table 
+## passed as argument
 create_merged <- function(dest_dir, mergeTable){    
     # - the dest_dir argument is the path to the destination directory
     # - the mergeTable argument is a matrix with 3 columns containing 
@@ -153,30 +161,31 @@ create_merged <- function(dest_dir, mergeTable){
     unlink(dest_dir, recursive = TRUE)
     dir.create(dest_dir)
     
-    ## for each couple of files specified in mergeTable
+    # for each couple of files specified in mergeTable
     for (i in 1:length(mergeTable[,1])){
-        ## test if the current file is a directory
+        # test if the current file is a directory
         is_directory <- file.info(mergeTable[i,1])[,2] 
-        #  if they are directories, create a same directory in dest_dir
+        # if they are directories, create a same directory in dest_dir
         if(is_directory){
             targetFile<-mergeTable[i,3]
             if(!file.exists(targetFile)){         
-                ## directory doesn't exist, create it
+                # directory doesn't exist, create it
                 dir.create(targetFile)
                 message(c("created directory ", targetFile))
             }
-        #  if they are files create a recipient and append the two files
+        # if they are files create a recipient and append the two files
         } else { 
             
             targetFile<-mergeTable[i,3]
             
             if(!file.exists(targetFile)){ 
-                ## target file doesn't exist, create it
+                # target file doesn't exist, create it
                 file.create(targetFile)
                 message(c("created file ", targetFile))
             }
             
             for (j in 1:2){
+            	# and append source files
                 message(c("appending ",mergeTable[i,j]))
                 file.append(targetFile, mergeTable[i,j])
             }
