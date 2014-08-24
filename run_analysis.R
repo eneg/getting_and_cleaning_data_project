@@ -46,7 +46,6 @@ run_analysis <- function(){
                include.dirs = TRUE),
         list.files(src_dir_2, recursive = TRUE, full.names = TRUE, 
               include.dirs = TRUE))
-    message("done generating mergeTable")
     
     # and for each couple of files the destination filename    
     targetFile <- NULL
@@ -64,6 +63,7 @@ run_analysis <- function(){
                   paste(dest_dir,"/",targetName, sep=""))
     }
     mergeTable<-cbind(mergeTable,targetFile)
+    message("done generating mergeTable")
     
     # In dest_dir, appends the files as specified in mergeTable
     # use create merged function bellow 
